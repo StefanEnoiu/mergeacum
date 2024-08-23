@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progres Vânzări</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://cdn.pixabay.com/photo/2020/10/23/15/23/iphone-5675475_960_720.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            box-sizing: border-box;
+            margin-top: 20px;
+            position: relative;
+        }
+        .container h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        label, input {
+            display: block;
+            margin: 10px 0;
+            font-size: 18px;
+            color: #333;
+        }
+        input {
+            padding: 12px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid #007AFF;
+            border-radius: 10px;
+        }
+        .target-box {
+            background-color: #E6F1FF;
+            border: 2px solid #007AFF;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .level-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #007AFF;
+            margin-bottom: 10px;
+        }
+        .progress-bar {
+            margin: 10px 0;
+            background-color: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress {
+            height: 30px;
+            width: 0;
+            background-color: #4CAF50;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+        .remaining, .average-needed, .probability, .daily-average {
+            font-size: 16px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .remaining, .average-needed {
+            color: #D32F2F;
+        }
+        .probability {
+            color: #007AFF;
+        }
+        .daily-average {
+            color: #4CAF50;
+        }
+        .days-percentage {
+            font-size: 18px;
+            color: #007AFF;
+            font-weight: bold;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .days-percentage-container {
+            background-color: #E6F1FF;
+            border: 2px solid #007AFF;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Progres Vânzări</h1>
+        <label for="username">Nume vânzător:</label>
+        <input type="text" id="username" placeholder="Introdu numele tău" oninput="updateUsername()">
+
+        <label for="workedDays">Număr zile lucrate:</label>
+        <input type="number" id="workedDays" placeholder="Introdu numărul de zile lucrate" oninput="updateProgress()">
+
+        <label for="totalWorkingDays">Număr total zile lucrătoare:</label>
+        <input type="number" id="totalWorkingDays" placeholder="Introdu numărul total de zile lucrătoare" oninput="updateProgress()">
+
+        <label for="totalSales">Total vânzări:</label>
+        <input type="number" id="totalSales" placeholder="Introdu totalul vânzărilor" oninput="updateProgress()">
+
+        <div class="days-percentage-container">
+            <div id="daysPercentage" class="days-percentage"></div>
+        </div>
+
+        <div id="dailyAverage" class="daily-average"></div>
+
+        <div id="progressBars"></div>
+    </div>
+
+    <script>
+        const levels = [
+            { name: "Nivel 1", target: 59000, reward: "200 lei" },
+            { name: "Nivel 2", target: 64000, reward: "340 lei" },
+            { name: "Nivel 3", target: 69000, reward: "470 lei" },
+            { name: "Nivel 4", target: 78000, reward: "600 lei" },
+            { name: "Nivel 5", target: 89000, reward: "690 lei" },
+            { name: "Nivel 6", target: 98000, reward: "820 lei" },
+            { name: "Nivel 7", target: 108000, reward: "1000 lei" },
+            { name: "Nivel 8", target: 117000, reward: "1200 lei" },
+            { name: "Nivel 9", target: 126000, reward: "1430 lei" },
+            { name: "Nivel 10", target: 135000, reward: "1700 lei" },
+            { name: "Nivel 11", target: 139500, reward: "1900 lei" },
+            { name: "Nivel 12", target: 150000, reward: "2300 lei" }
+        ];
+
+        function updateProgress() {
+            const totalSales = parseFloat(document.getElementById('totalSales').value) || 0;
+            const workedDays = parseFloat(document.getElementById('workedDays').value) || 0;
+            const totalWorkingDays = parseFloat(document.getElementById('totalWorkingDays').value) || 0;
+
+            const dailyAverageElement = document.getElementById('dailyAverage');
+            const daysPercentageElement = document.getElementById('daysPercentage');
+
+            if (workedDays > 0) {
+                const dailyAverage = totalSales / workedDays;
+                dailyAverageElement.textContent = `Media zilnică a vânzărilor: ${dailyAverage.toFixed(2)} lei`;
+
+                if (totalWorkingDays > 0) {
+                    const targetDailyAverage = totalSales / totalWorkingDays;
+                    daysPercentageElement.textContent = `Procentajul zilelor lucrătoare necesare pentru atingerea targetului: ${(100 * (totalSales / targetDailyAverage)).toFixed(2)}%`;
+                } else {
+                    daysPercentageElement.textContent = '';
+                }
+            } else {
+                dailyAverageElement.textContent = '';
+                daysPercentageElement.textContent = '';
+            }
+
+            levels.forEach(level => {
+                const progressElement = document.getElementById(level.name.replace(" ", "-"));
+                const remainingElement = document.getElementById(`${level.name.replace(" ", "-")}-remaining`);
+                const averageElement = document.getElementById(`${level.name.replace(" ", "-")}-average`);
+                const probabilityElement = document.getElementById(`${level.name.replace(" ", "-")}-probability`);
+
+                if (totalSales < level.target) {
+                    const progress = (totalSales / level.target) * 100;
+                    progressElement.style.width = `${progress}%`;
+                    progressElement.textContent = `${Math.min(progress, 100).toFixed(2)}%`;
+
+                    const remaining = level.target - totalSales;
+                    remainingElement.textContent = `Rămase: ${remaining.toFixed(2)} lei`;
+
+                    const daysLeft = totalWorkingDays - workedDays;
+                    const averageNeeded = daysLeft > 0 ? remaining / daysLeft : 0;
+                    averageElement.textContent = `Media necesară pentru zilele rămase: ${averageNeeded.toFixed(2)} lei`;
+
+                    const probability = daysLeft > 0 ? (totalSales / averageNeeded) * 100 : 100;
+                    probabilityElement.textContent = `Probabilitate de atingere a targetului: ${Math.min(probability, 100).toFixed(2)}%`;
+                } else {
+                    remainingElement.textContent = 'Targetul a fost depășit!';
+                    averageElement.textContent = '';
+                    probabilityElement.textContent = 'Targetul a fost depășit!';
+                }
+            });
+        }
+
+        function updateUsername() {
+            const username = document.getElementById('username').value;
+            if (username) {
+                document.querySelector('h1').textContent = `Progres Vânzări - ${username}`;
+            } else {
+                document.querySelector('h1').textContent = 'Progres Vânzări';
+            }
+        }
+
+        // Inițializare grafic
+        const progressBarsContainer = document.getElementById('progressBars');
+        levels.forEach(level => {
+            const targetBox = document.createElement('div');
+            targetBox.className = 'target-box';
+
+            const levelName = document.createElement('div');
+            levelName.className = 'level-name';
+            levelName.textContent = `${level.name}: ${level.target} lei - ${level.reward}`;
+            targetBox.appendChild(levelName);
+
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar';
+            const progress = document.createElement('div');
+            progress.className = 'progress';
+            progress.id = level.name.replace(" ", "-");
+            progressBar.appendChild(progress);
+            targetBox.appendChild(progressBar);
+
+            const remaining = document.createElement('div');
+            remaining.className = 'remaining';
+            remaining.id = `${level.name.replace(" ", "-")}-remaining`;
+            targetBox.appendChild(remaining);
+
+            const averageNeeded = document.createElement('div');
+            averageNeeded.className = 'average-needed';
+            averageNeeded.id = `${level.name.replace(" ", "-")}-average`;
+            targetBox.appendChild(averageNeeded);
+
+            const probability = document.createElement('div');
+            probability.className = 'probability';
+            probability.id = `${level.name.replace(" ", "-")}-probability`;
+            targetBox.appendChild(probability);
+
+            progressBarsContainer.appendChild(targetBox);
+        });
+    </script>
+</body>
+</html>
