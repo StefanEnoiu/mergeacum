@@ -1,0 +1,119 @@
+// Pragurile pentru fiecare nivel
+const levels = [
+    { name: "Nivel 1", target: 59000, reward: "200 lei" },
+    { name: "Nivel 2", target: 64000, reward: "340 lei" },
+    { name: "Nivel 3", target: 69000, reward: "470 lei" },
+    { name: "Nivel 4", target: 78000, reward: "600 lei" },
+    { name: "Nivel 5", target: 89000, reward: "690 lei" },
+    { name: "Nivel 6", target: 98000, reward: "820 lei" },
+    { name: "Nivel 7", target: 108000, reward: "1000 lei" },
+    { name: "Nivel 8", target: 117000, reward: "1200 lei" },
+    { name: "Nivel 9", target: 126000, reward: "1430 lei" },
+    { name: "Nivel 10", target: 135000, reward: "1700 lei" },
+    { name: "Nivel 11", target: 139500, reward: "1900 lei" },
+    { name: "Nivel 12", target: 150000, reward: "2300 lei" }
+];
+
+function updateProgress() {
+    const totalSales = parseFloat(document.getElementById('totalSales').value) || 0;
+    const workedDays = parseFloat(document.getElementById('workedDays').value) || 0;
+    const totalWorkingDays = parseFloat(document.getElementById('totalWorkingDays').value) || 0;
+    const remainingDays = totalWorkingDays - workedDays;
+
+    // Calculul procentului zilelor lucrate
+    const daysPercentage = (workedDays / totalWorkingDays) * 100;
+    document.getElementById('daysPercentage').textContent = `Procent zile lucrate: ${daysPercentage.toFixed(2)}%`;
+
+    // Calculul mediei vânzărilor pe zilele lucrate
+    const dailyAverage = totalSales / workedDays || 0;
+    document.getElementById('daysPercentage').textContent += ` | Media vânzărilor zilnice: ${dailyAverage.toFixed(2)} lei`;
+
+    levels.forEach(level => {
+        const progressElement = document.getElementById(level.name.replace(" ", "-"));
+        const remainingElement = document.getElementById(`${level.name.replace(" ", "-")}-remaining`);
+        const averageElement = document.getElementById(`${level.name.replace(" ", "-")}-average`);
+        const probabilityElement = document.getElementById(`${level.name.replace(" ", "-")}-probability`);
+
+        // Calcularea procentului de vânzări realizate pentru fiecare target
+        const percentage = Math.min((totalSales / level.target) * 100, 100);
+        progressElement.style.width = `${percentage}%`;
+        progressElement.textContent = `${percentage.toFixed(2)}%`;
+
+        // Calcularea restului necesar pentru atingerea targetului
+        const remaining = level.target - totalSales;
+        if (remaining > 0) {
+            remainingElement.textContent = `Rest pentru atingerea targetului: ${remaining.toFixed(2)} lei`;
+
+            // Calcularea mediei zilnice necesare în zilele rămase
+            if (remainingDays > 0) {
+                const averageNeeded = remaining / remainingDays;
+                averageElement.textContent = `Media zilnică necesară: ${averageNeeded.toFixed(2)} lei`;
+            } else {
+                averageElement.textContent = 'Nu mai sunt zile disponibile.';
+            }
+
+            // Calcularea probabilității de atingere a targetului
+            if (workedDays > 0 && remainingDays > 0) {
+                const currentAverage = totalSales / workedDays;
+                const averageNeededForTarget = level.target / totalWorkingDays;
+                const probability = (currentAverage >= averageNeededForTarget) ? 100 : (currentAverage / averageNeededForTarget) * 100;
+                probabilityElement.textContent = `Probabilitate atingere target: ${probability.toFixed(2)}%`;
+            } else {
+                probabilityElement.textContent = `Probabilitate atingere target: -`;
+            }
+        } else {
+            remainingElement.textContent = 'Target atins!';
+            averageElement.textContent = '';
+        }
+    });
+}
+
+function updateUsername() {
+    const username = document.getElementById('username').value || 'Vânzător';
+    document.getElementById('usernameHeader').textContent = `Progres Vânzări pentru ${username}`;
+}
+
+// Initialize progress bars on load
+document.addEventListener('DOMContentLoaded', () => {
+    const progressBarsContainer = document.getElementById('progressBars');
+
+    levels.forEach(level => {
+        const progressDiv = document.createElement('div');
+        progressDiv.className = 'target-box';
+        progressDiv.id = level.name.replace(" ", "-");
+
+        const levelName = document.createElement('div');
+        levelName.className = 'level-name';
+        levelName.textContent = level.name;
+
+        const progressBar = document.createElement('div');
+        progressBar.className = 'progress-bar';
+
+        const progress = document.createElement('div');
+        progress.className = 'progress';
+        progress.id = `${level.name.replace(" ", "-")}-progress`;
+
+        const remaining = document.createElement('div');
+        remaining.className = 'remaining';
+        remaining.id = `${level.name.replace(" ", "-")}-remaining`;
+
+        const average = document.createElement('div');
+        average.className = 'average-needed';
+        average.id = `${level.name.replace(" ", "-")}-average`;
+
+        const probability = document.createElement('div');
+        probability.className = 'probability';
+        probability.id = `${level.name.replace(" ", "-")}-probability`;
+
+        progressBar.appendChild(progress);
+        progressDiv.appendChild(levelName);
+        progressDiv.appendChild(progressBar);
+        progressDiv.appendChild(remaining);
+        progressDiv.appendChild(average);
+        progressDiv.appendChild(probability);
+        
+        progressBarsContainer.appendChild(progressDiv);
+    });
+
+    updateProgress();  // Initial call to set progress bars
+});

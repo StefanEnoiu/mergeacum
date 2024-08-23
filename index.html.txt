@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progres Vânzări</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1 id="usernameHeader">Progres Vânzări</h1>
+
+        <label for="username">Nume vânzător:</label>
+        <input type="text" id="username" placeholder="Introdu numele tău" oninput="updateUsername()">
+
+        <label for="workedDays">Număr zile lucrate:</label>
+        <input type="number" id="workedDays" placeholder="Introdu numărul de zile lucrate" oninput="updateProgress()">
+
+        <label for="totalWorkingDays">Număr total zile lucrătoare:</label>
+        <input type="number" id="totalWorkingDays" placeholder="Introdu numărul total de zile lucrătoare" oninput="updateProgress()">
+
+        <label for="totalSales">Total vânzări:</label>
+        <input type="number" id="totalSales" placeholder="Introdu totalul vânzărilor" oninput="updateProgress()">
+
+        <div class="days-percentage-container">
+            <div id="daysPercentage" class="days-percentage"></div>
+        </div>
+
+        <div id="progressBars"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
